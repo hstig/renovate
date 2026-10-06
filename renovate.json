@@ -1,0 +1,9 @@
+{
+  "regexManagers": [
+    {
+      "fileMatch": ["\\.yml\\.j2$"],
+      "matchStrings": ["image:\\s+(?<depName>[^:]+):(?<currentValue>[^\\s]+)"],
+      "datasourceTemplate": "docker"
+    }
+  ]
+}
