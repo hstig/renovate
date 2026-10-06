@@ -1,0 +1,4 @@
+---
+# roles/docker_payload_storage/defaults/main.yml
+gcp_storage_mount_path: "/data"
+docker_payload_path: "/data/docker/sample-service"

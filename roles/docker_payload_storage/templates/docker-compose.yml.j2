@@ -1,0 +1,10 @@
+# roles/docker_payload_storage/templates/docker-compose.yml.j2
+services:
+  sample-app:
+    image: ubuntu:24.04
+    container_name: sample-nginx-{{ inventory_hostname }}
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - {{ docker_payload_path }}/html:/usr/share/nginx/html

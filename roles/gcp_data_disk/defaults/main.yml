@@ -1,0 +1,3 @@
+---
+# roles/gcp_data_disk/defaults/main.yml
+gcp_storage_mount_path: "/data"

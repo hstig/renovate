@@ -1,0 +1,45 @@
+---
+# roles/docker_payload_storage/tasks/main.yml
+
+# 1. Install Docker Engine and Compose
+- name: Install Docker and Docker Compose
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose-v2
+    state: present
+    update_cache: yes
+  become: true
+
+# 4. Docker Environment Setup
+- name: Ensure target docker payload directory exists
+  ansible.builtin.file:
+    path: "{{ docker_payload_path }}"
+    state: directory
+    mode: '0755'
+  become: true
+   
+- name: Ensure required bind mount subdirectories exist (e.g., html)
+  ansible.builtin.file:
+    path: "{{ docker_payload_path }}/html"
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Deploy sample docker-compose.yml
+  block:
+    - name: Template the sample
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ docker_payload_path }}/docker-compose.yml"
+        owner: root
+        group: root
+        mode: '0644'
+  become: true
+
+- name: Start the sample Docker Compose stack
+  ansible.builtin.command:
+    cmd: docker compose up -d
+    chdir: "{{ docker_payload_path }}"
+  become: true
+  changed_when: false

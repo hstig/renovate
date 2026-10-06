@@ -1,0 +1,10 @@
+---
+- name: Provision Containerized Target
+  hosts: "{{ hosts }}"
+  become: true
+  roles:
+    # 1. Prepare and mount the GCP data disk first
+    - role: gcp_data_disk
+    
+    # 2. Then install Docker and deploy payloads to the newly mounted /data
+    - role: docker_payload_storage

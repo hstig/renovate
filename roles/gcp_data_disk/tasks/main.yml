@@ -1,0 +1,48 @@
+---
+# roles/gcp_data_disk/tasks/main.yml
+# 2. Dynamically find the secondary persistent disk
+- name: Autodetect secondary GCP data disk
+  ansible.builtin.shell: |
+    find /dev/disk/by-id/ -name "google-*" -type l -printf "%p -> %l\n" | grep -v "sda" | grep -v -e "-part" | awk '{print $1}' | head -n 1
+  register: discovered_gcp_disk
+  changed_when: false
+  become: true
+
+- name: Resolve storage device path
+  ansible.builtin.set_fact:
+    target_device: "{{ discovered_gcp_disk.stdout | default('/dev/sdb', true) }}"
+
+# 3. Format and Mount
+- name: Check if the disk is already formatted
+  ansible.builtin.command: "blkid {{ target_device }}"
+  register: disk_fs_check
+  failed_when: false
+  changed_when: false
+  become: true
+
+- name: Format the partition with xfs
+  community.general.filesystem:
+    fstype: xfs
+    dev: "{{ target_device }}"
+  when: disk_fs_check.rc != 0
+  become: true
+
+- name: Get UUID of the data partition
+  ansible.builtin.shell: |
+    TARGET_DEV=$(lsblk -pnlo NAME {{ target_device }} | tail -n 1)
+    blkid -s UUID -o value $TARGET_DEV
+  register: partition_uuid
+  become: true
+  changed_when: false
+  failed_when: partition_uuid.stdout | trim == ""
+
+- name: Mount data partition to /data securely using UUID
+  ansible.builtin.mount:
+    path: "{{ gcp_storage_mount_path }}"
+    src: "UUID={{ partition_uuid.stdout | trim }}"
+    fstype: xfs
+    opts: defaults,nofail
+    state: mounted
+    dump: 0
+    passno: 0
+  become: true
