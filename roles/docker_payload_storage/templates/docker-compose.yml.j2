@@ -1,7 +1,7 @@
 # roles/docker_payload_storage/templates/docker-compose.yml.j2
 services:
   sample-app:
-    image: ubuntu:24.04
+    image: ubuntu:26.10
     container_name: sample-nginx-{{ inventory_hostname }}
     restart: unless-stopped
     ports:
