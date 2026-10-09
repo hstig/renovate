@@ -5,5 +5,12 @@
       "matchStrings": ["image:\\s+(?<depName>[^:]+):(?<currentValue>[^\\s]+)"],
       "datasourceTemplate": "docker"
     }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ubuntu"],
+      "allowedVersions": "/^\\d+\\.04$/"
+    }
   ]
 }
