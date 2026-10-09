@@ -7,3 +7,12 @@ services:
     command: tunnel run
     environment:
       - TUNNEL_TOKEN=your_test_token_here
+
+  sample-app:
+    image: ubuntu:23.04
+    container_name: sample-nginx-{{ inventory_hostname }}
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - {{ docker_payload_path }}/html:/usr/share/nginx/html
